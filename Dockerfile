@@ -40,4 +40,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
 
 # Run migrations first, then start the app
 # --proxy-headers: trust X-Forwarded-For from nginx so rate limiter sees real client IPs
-CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && uvicorn app:app --host 0.0.0.0 --port 8000 --workers 1 --proxy-headers"]
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && python create_superuser.py && uvicorn app:app --host 0.0.0.0 --port 8000 --workers 1 --proxy-headers"]
