@@ -1,0 +1,16 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block userlinks %}
+<a href="/"
+    style="background: #28a745; color: #fff; padding: 5px 12px; border-radius: 4px; font-weight: bold; text-decoration: none; margin-right: 15px; border: 1px solid #1e7e34;">🏠
+    Tool Homepage</a>
+{{ block.super }}
+{% endblock %}

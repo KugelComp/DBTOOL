@@ -1,0 +1,60 @@
+version: '3.9'
+
+# NOTE: In production, put nginx in front of this container for HTTPS termination.
+# Map nginx port 443 → this container's port 8000.
+services:
+  db-tool:
+    build: .
+    container_name: db_tool
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # --- Application ---
+      APP_ENV: production
+
+      # --- FastAPI Session ---
+      SESSION_SECRET_KEY: ${SESSION_SECRET_KEY}
+      SESSION_TIMEOUT_HOURS: ${SESSION_TIMEOUT_HOURS:-24}
+
+      # --- Django (REQUIRED) ---
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_DEBUG: "false"
+      # REQUIRED: Set this on your server before running docker compose up
+      # Example: export DJANGO_ALLOWED_HOSTS=dbtool.yourcompany.com
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+
+      # --- Default Target DB ---
+      DEFAULT_TARGET_ENABLED: ${DEFAULT_TARGET_ENABLED:-true}
+      DEFAULT_TARGET_HOST: ${DEFAULT_TARGET_HOST:-localhost}
+      DEFAULT_TARGET_PORT: ${DEFAULT_TARGET_PORT:-3306}
+      DEFAULT_TARGET_USER: ${DEFAULT_TARGET_USER}
+      DEFAULT_TARGET_PASSWORD: ${DEFAULT_TARGET_PASSWORD}
+
+      # --- Paths ---
+      LOG_DIR: /app/logs
+      DUMP_PATH: /app/dumps
+      OBSCURE_FILE: /app/obscure.sql
+
+    volumes:
+      - db_tool_logs:/app/logs
+      - db_tool_dumps:/app/dumps
+      - db_tool_sqlite:/app/db.sqlite3
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  db_tool_logs:
+  db_tool_dumps:
+  db_tool_sqlite:
+
+# Usage:
+#   1. Copy .env.example to .env and fill in all values
+#   2. docker compose up -d --build
+#   3. On first run, create a superuser:
+#      docker compose exec db-tool python manage.py createsuperuser

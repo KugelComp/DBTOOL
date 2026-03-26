@@ -1,0 +1,33 @@
+# Secrets — NEVER bake into image
+.env
+
+# SQLite DB — mounted as a volume at runtime
+db.sqlite3
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs and dumps — mounted as volumes at runtime
+logs/
+dumps/
+
+# Dev/debug files
+debug_trace.txt
+debug_trace.txt
+check_result.txt
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+*.egg-info/

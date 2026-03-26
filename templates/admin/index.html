@@ -1,0 +1,43 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Site administration{% endblock %}
+
+{% block bodyclass %}dashboard{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+
+    <div class="module">
+        <table>
+            <caption>
+                <a href="/admin/auth/" class="section"
+                    title="Models in the Authentication and Authorization application">Authentication and
+                    Authorization</a>
+            </caption>
+
+            <tr class="model-group">
+                <th scope="row"><a href="/admin/auth/group/">Groups</a></th>
+                <td><a href="/admin/auth/group/add/" class="addlink">Add</a></td>
+                <td><a href="/admin/auth/group/" class="changelink">Change</a></td>
+            </tr>
+
+            <tr class="model-user">
+                <th scope="row"><a href="/admin/auth/user/">Users</a></th>
+                <td><a href="/admin/auth/user/add/" class="addlink">Add</a></td>
+                <td><a href="/admin/auth/user/" class="changelink">Change</a></td>
+            </tr>
+        </table>
+    </div>
+
+</div>
+
+<div id="content-related">
+    <div class="module" id="recent-actions-module">
+        <h2>Recent actions</h2>
+        <h3>My actions</h3>
+        <p>None available</p>
+    </div>
+</div>
+{% endblock %}

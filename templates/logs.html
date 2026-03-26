@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Database Operations</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#0f172a', /* Main BG */
+                            800: '#1e293b', /* Card/Sidebar */
+                            700: '#334155', /* Border */
+                            600: '#475569',
+                        },
+                        primary: {
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                        },
+                        text: {
+                            main: '#f8fafc',
+                            muted: '#94a3b8'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        .sidebar-link {
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background-color: rgba(99, 102, 241, 0.1);
+            color: #fff;
+            border-left-color: #6366f1;
+        }
+
+        .table-row-hover:hover {
+            background-color: rgba(51, 65, 85, 0.4);
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-dark-800 border-r border-dark-700 flex flex-col shadow-2xl z-20">
+        <div class="p-6 border-b border-dark-700 flex items-center gap-3">
+            <div
+                class="w-8 h-8 rounded bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                <i class="ri-database-2-fill text-white"></i>
+            </div>
+            <span class="font-bold text-lg tracking-tight">DB Admin<span class="text-indigo-400">Panel</span></span>
+        </div>
+
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+            <div class="text-xs font-bold text-dark-600 uppercase px-4 py-2 mt-2">Core</div>
+
+            <a href="/" class="sidebar-link flex items-center gap-3 px-4 py-3 text-text-muted rounded-r-lg">
+                <i class="ri-rocket-line text-lg"></i>
+                <span class="font-medium">Operations</span>
+            </a>
+
+            <div class="text-xs font-bold text-dark-600 uppercase px-4 py-2 mt-6">Monitoring</div>
+
+            <a href="#"
+                class="sidebar-link active flex items-center gap-3 px-4 py-3 text-text-muted rounded-r-lg bg-indigo-500/10 text-white border-l-indigo-500">
+                <i class="ri-shield-check-fill text-lg"></i>
+                <span class="font-medium">Audit Logs</span>
+            </a>
+            <a href="#"
+                class="sidebar-link flex items-center gap-3 px-4 py-3 text-text-muted rounded-r-lg cursor-not-allowed opacity-50">
+                <i class="ri-pulse-line text-lg"></i>
+                <span class="font-medium">Server Health</span>
+            </a>
+
+            <div class="text-xs font-bold text-dark-600 uppercase px-4 py-2 mt-6">Settings</div>
+            <a href="/logout"
+                class="sidebar-link flex items-center gap-3 px-4 py-3 text-text-muted rounded-r-lg hover:text-red-400 hover:bg-red-900/10 hover:border-l-red-500">
+                <i class="ri-logout-box-line text-lg"></i>
+                <span class="font-medium">Logout</span>
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-dark-700">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-dark-700 flex items-center justify-center">
+                    <i class="ri-user-smile-line text-xl"></i>
+                </div>
+                <div>
+                    <div class="text-sm font-semibold">{{ username }}</div>
+                    <div class="text-xs text-text-muted">Administrator</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0 bg-dark-900 overflow-hidden">
+
+        <!-- Top Header (Mobile trigger would go here) -->
+        <header class="bg-dark-800 border-b border-dark-700 p-4 flex justify-between items-center shadow-sm">
+            <div class="flex items-center gap-4">
+                <h2 class="text-xl font-semibold">Audit Logs</h2>
+                <span class="bg-dark-700 text-xs px-2 py-1 rounded text-text-muted border border-dark-600">v1.2.0</span>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="loadLogs()"
+                    class="p-2 text-text-muted hover:text-white rounded hover:bg-dark-700 transition" title="Refresh">
+                    <i class="ri-refresh-line text-xl"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto p-6">
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-dark-800 p-5 rounded-xl border border-dark-700 shadow-sm relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition">
+                        <i class="ri-file-list-3-line text-6xl text-indigo-500"></i>
+                    </div>
+                    <div class="text-sm text-text-muted font-medium mb-1">Total Events</div>
+                    <div class="text-3xl font-bold text-white" id="totalCount">-</div>
+                    <div class="text-xs text-indigo-400 mt-2 font-medium">+12% from last week</div>
+                </div>
+
+                <div class="bg-dark-800 p-5 rounded-xl border border-dark-700 shadow-sm relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition">
+                        <i class="ri-error-warning-line text-6xl text-red-500"></i>
+                    </div>
+                    <div class="text-sm text-text-muted font-medium mb-1">Errors</div>
+                    <div class="text-3xl font-bold text-red-400" id="errorCount">-</div>
+                    <div class="text-xs text-dark-600 mt-2 font-medium">Attention required</div>
+                </div>
+
+                <div class="bg-dark-800 p-5 rounded-xl border border-dark-700 shadow-sm relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition">
+                        <i class="ri-user-voice-line text-6xl text-emerald-500"></i>
+                    </div>
+                    <div class="text-sm text-text-muted font-medium mb-1">Active Users</div>
+                    <div class="text-3xl font-bold text-emerald-400" id="userCount">-</div>
+                    <div class="text-xs text-text-muted mt-2">Recorded in logs</div>
+                </div>
+            </div>
+
+            <!-- Table Card -->
+            <div class="bg-dark-800 rounded-xl border border-dark-700 shadow-lg flex flex-col h-[calc(100vh-320px)]">
+                <!-- Toolbar -->
+                <div
+                    class="p-4 border-b border-dark-700 flex flex-col sm:flex-row gap-4 justify-between items-center bg-dark-800/50">
+                    <div class="relative w-full sm:w-96">
+                        <i class="ri-search-line absolute left-3 top-2.5 text-text-muted"></i>
+                        <input type="text" id="searchInput" placeholder="Search logs (Action, User, Details)..."
+                            class="w-full bg-dark-900 border border-dark-700 rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                    </div>
+
+                    <div class="flex gap-3 w-full sm:w-auto">
+                        <select id="levelFilter"
+                            class="bg-dark-900 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-indigo-500 cursor-pointer">
+                            <option value="ALL">All Levels</option>
+                            <option value="INFO">INFO</option>
+                            <option value="WARNING">WARNING</option>
+                            <option value="ERROR">ERROR</option>
+                        </select>
+                        <button onclick="exportCSV()"
+                            class="px-3 py-2 bg-dark-700 hover:bg-dark-600 border border-dark-600 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                            <i class="ri-download-line"></i> CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table Wrapper -->
+                <div class="flex-1 overflow-auto relative">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead class="bg-dark-900/50 sticky top-0 z-10 backdrop-blur-sm">
+                            <tr class="text-text-muted text-xs uppercase tracking-wider">
+                                <th class="px-6 py-4 font-semibold w-48 border-b border-dark-700">Timestamp</th>
+                                <th class="px-6 py-4 font-semibold w-28 border-b border-dark-700">Level</th>
+                                <th class="px-6 py-4 font-semibold w-48 border-b border-dark-700">Action</th>
+                                <th class="px-6 py-4 font-semibold w-40 border-b border-dark-700">User</th>
+                                <th class="px-6 py-4 font-semibold border-b border-dark-700">Message</th>
+                                <th class="px-6 py-4 font-semibold w-20 text-center border-b border-dark-700">View</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsBody" class="divide-y divide-dark-700">
+                            <!-- Rows injected -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Footer -->
+                <div class="p-4 border-t border-dark-700 flex justify-between items-center bg-dark-800/80">
+                    <div class="text-xs text-text-muted">
+                        Showing <span class="font-bold text-white" id="showingCount">0</span> of <span
+                            class="font-bold text-white" id="totalFiltered">-</span> events
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="prevBtn" onclick="prevPage()" disabled
+                            class="w-8 h-8 flex items-center justify-center rounded border border-dark-700 bg-dark-900 text-text-muted disabled:opacity-50 hover:bg-dark-800 transition">
+                            <i class="ri-arrow-left-s-line"></i>
+                        </button>
+                        <span id="pageIndicator" class="px-3 py-1 flex items-center text-sm font-medium">Page 1</span>
+                        <button id="nextBtn" onclick="nextPage()" disabled
+                            class="w-8 h-8 flex items-center justify-center rounded border border-dark-700 bg-dark-900 text-text-muted disabled:opacity-50 hover:bg-dark-800 transition">
+                            <i class="ri-arrow-right-s-line"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Details Modal -->
+    <div id="detailsModal"
+        class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div
+            class="bg-dark-800 w-full max-w-3xl rounded-xl border border-dark-700 shadow-2xl flex flex-col max-h-[85vh] animate-[fadeIn_0.2s_ease-out]">
+            <div class="p-5 border-b border-dark-700 flex justify-between items-center bg-dark-900/50 rounded-t-xl">
+                <div>
+                    <h3 class="font-bold text-lg text-white">Log Event Details</h3>
+                    <p class="text-xs text-text-muted font-mono mt-1" id="modalId">ID: <span
+                            class="text-indigo-400">#LOG-001</span></p>
+                </div>
+                <button onclick="closeModal()"
+                    class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-dark-700 text-text-muted hover:text-white transition">
+                    <i class="ri-close-line text-xl"></i>
+                </button>
+            </div>
+            <div class="p-0 overflow-y-auto flex-1 font-mono text-sm">
+                <div class="grid grid-cols-1 divide-y divide-dark-700">
+                    <!-- Rendered manually -->
+                    <pre id="modalContent" class="p-6 text-indigo-300 whitespace-pre-wrap leading-relaxed"></pre>
+                </div>
+            </div>
+            <div class="p-4 border-t border-dark-700 bg-dark-900/30 flex justify-end">
+                <button onclick="closeModal()"
+                    class="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white text-sm font-medium rounded-lg transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allLogs = [];
+        let filteredLogs = [];
+        let currentPage = 1;
+        const itemsPerPage = 15;
+
+        async function loadLogs() {
+            const tbody = document.getElementById('logsBody');
+            tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-text-muted"><i class="ri-loader-4-line animate-spin text-3xl mb-3 block text-indigo-500"></i>Fetching audit trail...</td></tr>`;
+
+            try {
+                const response = await fetch('/api/logs');
+                const data = await response.json();
+
+                if (data.error) throw new Error(data.error);
+
+                allLogs = data.logs || [];
+                // Generate pseudo-IDs usually not in file
+                allLogs = allLogs.map((l, i) => ({ ...l, _id: i }));
+
+                applyFilters();
+                updateStats();
+
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-red-400 bg-red-900/10 border-t border-red-900/20">
+                    <i class="ri-error-warning-fill text-3xl mb-2 block"></i>
+                    Failed to load logs: ${error.message}
+                </td></tr>`;
+            }
+        }
+
+        function applyFilters() {
+            const filterText = document.getElementById('searchInput').value.toLowerCase();
+            const filterLevel = document.getElementById('levelFilter').value;
+
+            filteredLogs = allLogs.filter(log => {
+                const matchesText = JSON.stringify(log).toLowerCase().includes(filterText);
+                const matchesLevel = filterLevel === 'ALL' || log.level === filterLevel;
+                return matchesText && matchesLevel;
+            });
+
+            currentPage = 1;
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('logsBody');
+
+            if (filteredLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-text-muted italic">No matching records found.</td></tr>`;
+                updatePagination();
+                return;
+            }
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = filteredLogs.slice(start, end);
+
+            tbody.innerHTML = pageData.map((log) => {
+                let badgeClass = 'bg-dark-700 text-text-muted border-dark-600';
+                let iconClass = 'ri-information-line';
+
+                if (log.level === 'INFO') { badgeClass = 'bg-blue-500/10 text-blue-400 border-blue-500/20'; iconClass = 'ri-information-fill'; }
+                if (log.level === 'WARNING') { badgeClass = 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'; iconClass = 'ri-alert-fill'; }
+                if (log.level === 'ERROR') { badgeClass = 'bg-red-500/10 text-red-400 border-red-500/20'; iconClass = 'ri-error-warning-fill'; }
+                if (log.level === 'CRITICAL') { badgeClass = 'bg-red-500/20 text-red-400 border-red-500/50 font-bold'; iconClass = 'ri-alarm-warning-fill'; }
+
+                const timestamp = new Date(log.timestamp).toLocaleString();
+                const action = log.action || '-';
+                const user = log.user || 'system';
+
+                return `
+                    <tr class="table-row-hover transition-colors border-b border-dark-700 last:border-0 group">
+                        <td class="px-6 py-4 font-mono text-xs text-text-muted whitespace-nowrap group-hover:text-white transition">${timestamp}</td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${badgeClass}">
+                                <i class="${iconClass}"></i> ${log.level}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 font-medium text-white table-cell-action">${action}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-full bg-dark-600 flex items-center justify-center text-xs text-white">
+                                    ${user.charAt(0).toUpperCase()}
+                                </div>
+                                <span class="text-sm text-text-muted">${user}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-text-muted truncate max-w-sm group-hover:text-gray-300 transition" title="${log.message}">${log.message}</td>
+                        <td class="px-6 py-4 text-center">
+                            <button onclick="showDetails(${log._id})" class="text-text-muted hover:text-indigo-400 p-1.5 rounded hover:bg-indigo-500/10 transition">
+                                <i class="ri-eye-line text-lg"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            updatePagination();
+        }
+
+        function updatePagination() {
+            const total = filteredLogs.length;
+            const totalPages = Math.ceil(total / itemsPerPage);
+
+            document.getElementById('showingCount').innerText = Math.min(itemsPerPage, total); // Actually showing count on this page? No, total filtered.
+            // Let's fix showing count logic
+            const start = (currentPage - 1) * itemsPerPage;
+            const currentShow = Math.min(itemsPerPage, total - start);
+            document.getElementById('showingCount').innerText = currentShow > 0 ? `${start + 1}-${start + currentShow}` : '0';
+
+            document.getElementById('totalFiltered').innerText = total;
+            document.getElementById('pageIndicator').innerText = `Page ${currentPage} of ${totalPages || 1}`;
+
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage >= totalPages || total === 0;
+        }
+
+        function prevPage() { if (currentPage > 1) { currentPage--; renderTable(); } }
+        function nextPage() {
+            const total = filteredLogs.length;
+            const totalPages = Math.ceil(total / itemsPerPage);
+            if (currentPage < totalPages) { currentPage++; renderTable(); }
+        }
+
+        function updateStats() {
+            document.getElementById('totalCount').innerText = allLogs.length;
+            const errors = allLogs.filter(l => l.level === 'ERROR' || l.level === 'CRITICAL').length;
+            document.getElementById('errorCount').innerText = errors;
+
+            // Unique users
+            const users = new Set(allLogs.map(l => l.user));
+            document.getElementById('userCount').innerText = users.size;
+        }
+
+        function showDetails(id) {
+            const log = allLogs.find(l => l._id === id);
+            if (!log) return;
+
+            document.getElementById('modalContent').textContent = JSON.stringify(log, null, 2);
+            document.getElementById('modalId').innerHTML = `ID: <span class="text-indigo-400">#${log.timestamp.substr(-6)}-${id}</span>`;
+            document.getElementById('detailsModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('detailsModal').classList.add('hidden');
+        }
+
+        function exportCSV() {
+            // Convert filteredLogs to CSV
+            if (filteredLogs.length === 0) return;
+
+            const headers = Object.keys(filteredLogs[0]).filter(k => k !== '_id').join(',');
+            const rows = filteredLogs.map(log => {
+                return Object.keys(log).filter(k => k !== '_id').map(k => {
+                    let val = log[k];
+                    if (typeof val === 'string') val = `"${val.replace(/"/g, '""')}"`;
+                    return val;
+                }).join(',');
+            }).join('\n');
+
+            const csvContent = "data:text/csv;charset=utf-8," + headers + '\n' + rows;
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "audit_logs.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Listeners
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('levelFilter').addEventListener('change', applyFilters);
+        document.getElementById('detailsModal').addEventListener('click', (e) => {
+            if (e.target.id === 'detailsModal') closeModal();
+        });
+
+        // Init
+        loadLogs();
+
+        // Add animation for refresh
+    </script>
+</body>
+
+</html>

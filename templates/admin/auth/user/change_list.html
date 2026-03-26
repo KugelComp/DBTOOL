@@ -1,0 +1,66 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Select user to change | Django site admin{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="/admin/">Home</a>
+    &rsaquo; <a href="/admin/auth/">Authentication and Authorization</a>
+    &rsaquo; Users
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+
+    <ul class="object-tools">
+        <li>
+            <a href="/admin/auth/user/add/" class="addlink">
+                Add user
+            </a>
+        </li>
+    </ul>
+
+    <div class="module" id="changelist">
+
+        <div class="results">
+            <table id="result_list">
+                <thead>
+                    <tr>
+                        <th scope="col" class="sortable column-username">
+                            <div class="text"><a href="?o=1">Username</a></div>
+                            <div class="clear"></div>
+                        </th>
+                        <th scope="col" class="sortable column-is_staff">
+                            <div class="text"><a href="?o=2">Staff status</a></div>
+                            <div class="clear"></div>
+                        </th>
+                        <th scope="col" class="sortable column-is_superuser">
+                            <div class="text"><a href="?o=3">Superuser status</a></div>
+                            <div class="clear"></div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr class="{% cycle 'row1' 'row2' %}">
+                        <th class="field-username"><a href="/admin/auth/user/{{ u.username }}/change/">{{ u.username
+                                }}</a></th>
+                        <td class="field-is_staff"><img src="/static/admin/img/icon-{{ u.is_staff|yesno:'yes,no' }}.svg"
+                                alt="{{ u.is_staff }}"></td>
+                        <td class="field-is_superuser"><img
+                                src="/static/admin/img/icon-{{ u.is_superuser|yesno:'yes,no' }}.svg"
+                                alt="{{ u.is_superuser }}"></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <p class="paginator">
+            {{ users|length }} users
+        </p>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block submit_buttons_bottom %}
+{{ block.super }}
+
+{% if original and original.status != 'EXECUTED' and original.status != 'APPROVED' and original.status != 'REJECTED' %}
+<div class="submit-row">
+    {% if is_app_superuser %}
+    <a href="{% url 'admin:operationrequest-approve' original.pk %}" class="button"
+        style="background-color: #28a745; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-left:10px;">
+        {% trans "Approve Request (Superuser)" %}
+    </a>
+    {% endif %}
+
+    {% if is_app_admin and not original.admin_approved %}
+    <a href="{% url 'admin:operationrequest-endorse' original.pk %}" class="button"
+        style="background-color: #28a745; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-left:10px;">
+        {% trans "Endorse Request (Admin)" %}
+    </a>
+    {% endif %}
+
+    {% if is_app_admin or is_app_superuser %}
+    <a href="{% url 'admin:operationrequest-reject' original.pk %}" class="button"
+        style="background-color: #dc3545; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-left:10px;">
+        {% trans "Reject Request" %}
+    </a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,2116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="version" content="2.1-MULTI_SELECT_FIXED">
+    <title>Database Export Tool (v2.1)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --accent: #8b5cf6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --ring: rgba(99, 102, 241, 0.4);
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 540px;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .user-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 9999px;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 16px;
+        }
+
+        .logout-link {
+            color: var(--primary);
+            font-weight: 500;
+            text-decoration: none;
+            margin-left: 8px;
+            padding-left: 8px;
+            border-left: 1px solid var(--border);
+        }
+
+        .approvals-btn {
+            color: #f59e0b;
+            font-weight: 500;
+            text-decoration: none;
+            margin-left: 8px;
+            padding-left: 8px;
+            border-left: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .logout-link:hover,
+        .approvals-btn:hover {
+            text-decoration: underline;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            padding: 12px 16px;
+            border-radius: 10px;
+            color: var(--text-main);
+            font-size: 14px;
+            transition: all 0.2s;
+            appearance: none;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--ring);
+        }
+
+        /* Fix Checkboxes */
+        input[type="checkbox"] {
+            appearance: auto;
+            /* Restore native look */
+            width: auto;
+            /* Stop 100% width from generic input rule */
+            margin-right: 8px;
+        }
+
+        /* Custom Select Arrow */
+        .select-wrapper::after {
+            content: '\ea4a';
+            font-family: 'remixicon';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+            font-size: 16px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-hover);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #059669;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Operation Toggles */
+        .toggle-group {
+            background: var(--bg-dark);
+            padding: 4px;
+            border-radius: 12px;
+            display: flex;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .toggle-option {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .toggle-option.active {
+            background: var(--bg-card);
+            color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Loading Overlay */
+        .loader-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 50;
+        }
+
+        .loader-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .spinner-ring {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--bg-input);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Drawer for Debug Console */
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 32px;
+            width: 90%;
+            max-width: 520px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: scale(0.95);
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            color: var(--danger);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.01em;
+        }
+
+        .failed-tables-list {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 12px;
+            margin: 16px 0 24px 0;
+            max-height: 240px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            color: #fca5a5;
+            list-style: none;
+        }
+
+        .failed-tables-list li {
+            padding: 7px 8px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .failed-tables-list li .tbl-name {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-weight: 600;
+        }
+
+        .failed-tables-list li .tbl-name::before {
+            content: "\EB98";
+            font-family: 'remixicon';
+            font-size: 14px;
+            opacity: 0.7;
+            flex-shrink: 0;
+        }
+
+        /* Muted reason line under each table name */
+        .failed-tables-list li .tbl-reason {
+            font-size: 11px;
+            color: rgba(252, 165, 165, 0.55);
+            padding-left: 21px;
+            word-break: break-all;
+            /* clamp to 2 lines */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .failed-tables-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* Green banner — tables that passed on this retry */
+        .now-passed-banner {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+            font-size: 13px;
+            color: #6ee7b7;
+        }
+
+        .now-passed-banner strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .now-passed-banner .passed-list {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 11px;
+            color: rgba(110, 231, 183, 0.75);
+            word-break: break-all;
+        }
+
+        .modal-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .drawer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #000;
+            border-top: 1px solid #333;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 100;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .drawer.open {
+            transform: translateY(0);
+        }
+
+        .drawer-handle {
+            background: #111;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 1px solid #333;
+            color: #666;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .drawer-handle:hover {
+            color: #fff;
+            background: #222;
+        }
+
+        .drawer-content {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            color: #0f0;
+            line-height: 1.5;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            min-width: 300px;
+            animation: slideIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            pointer-events: auto;
+        }
+
+        .toast-icon {
+            font-size: 20px;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .toast-msg {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        .toast.error .toast-icon {
+            color: var(--danger);
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.success .toast-icon {
+            color: var(--success);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Progress Dashboard */
+        .progress-dashboard {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .progress-bar-container {
+            background: var(--bg-input);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 12px 0;
+            position: relative;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .control-btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 700;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .status-running {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .status-paused {
+            background: rgba(234, 179, 8, 0.2);
+            color: #fbbf24;
+        }
+
+        .status-cancelled {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Main App Container -->
+    <div class="app-container">
+        <div class="header">
+            <h1><a href="/" style="text-decoration: none; color: inherit; cursor: pointer;"
+                    title="Go to Homepage">Database Operations Tool</a></h1>
+            <p class="subtitle" style="color: var(--text-muted);">Secure, fast, and reliable database operations</p>
+
+            <div class="user-pill">
+                {% if is_staff %}
+                <a href="/admin" title="Admin Panel" target="_blank" rel="noopener noreferrer"
+                    style="text-decoration: none; color: inherit; margin-right: 8px; border-right: 1px solid var(--border); padding-right: 8px;">
+                    <i class="ri-settings-4-line"></i>
+                </a>
+                {% endif %}
+
+                <i class="ri-user-smile-line"></i> {{ request.session.username }}
+                <a class="approvals-btn" onclick="showActiveJobs()" title="View Running Jobs" style="margin-left: 8px;">
+                    <i class="ri-loader-4-line"></i> Active Processes
+                </a>
+                <a class="approvals-btn" onclick="showPendingRequests()" title="View Pending Approvals"
+                    style="margin-left: 8px;">
+                    <i class="ri-alarm-warning-line"></i> Approvals
+                </a>
+                <a href="/logout" class="logout-link">Logout</a>
+            </div>
+        </div>
+
+        <!-- Connection Form -->
+        <form id="connectionForm">
+            <!-- Mode Toggle -->
+            <div class="toggle-group">
+                <div class="toggle-option active" id="opModeBackup" onclick="setOpMode('backup')">
+                    <i class="ri-download-cloud-2-line"></i> Backup
+                </div>
+                <div class="toggle-option" id="opModeMigrate" onclick="setOpMode('migrate')">
+                    <i class="ri-rocket-line"></i> Migrate
+                </div>
+            </div>
+
+            <!-- Host Source Toggle -->
+            <div class="toggle-group"
+                style="margin-top: -12px; margin-bottom: 24px; border: none; background: transparent; padding: 0;">
+                <div class="toggle-option" id="modePredefined" onclick="setMode('predefined')"
+                    style="border: 1px solid var(--border); margin-right: 4px;">
+                    <i class="ri-server-line"></i> Saved Host
+                </div>
+                <div class="toggle-option" id="modeManual" onclick="setMode('manual')"
+                    style="border: 1px solid var(--border);">
+                    <i class="ri-keyboard-line"></i> Manual Input
+                </div>
+            </div>
+
+            <!-- Predefined Host -->
+            <div id="predefinedHostGroup" class="input-group">
+                <label>Select Host System</label>
+                <div class="select-wrapper">
+                    <select id="hostSelect">
+                        <option value="">Loading hosts...</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Manual Host -->
+            <div id="manualHostGroup" class="hidden">
+                <div style="display: flex; gap: 12px;">
+                    <div class="input-group" style="flex: 2;">
+                        <label>Host IP</label>
+                        <input type="text" id="manualHost" placeholder="e.g. 192.168.1.50">
+                    </div>
+                    <div class="input-group" style="flex: 1;">
+                        <label>Port</label>
+                        <input type="number" id="manualPort" value="3306">
+                    </div>
+                </div>
+            </div>
+
+            <div id="credentialsGroup" class="hidden">
+                <div class="input-group">
+                    <label>Database User</label>
+                    <input type="text" id="user" placeholder="root">
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="••••••••">
+                </div>
+            </div>
+
+            <button type="button" id="connectBtn" class="btn btn-primary" onclick="handleConnect()">
+                <i class="ri-link"></i> Connect & Fetch Databases
+            </button>
+        </form>
+
+        <!-- Export/Migrate Form -->
+        <form id="exportForm" class="hidden">
+            <div class="input-group">
+                <label>Select Database</label>
+                <div class="select-wrapper">
+                    <select id="database" required>
+                        <option value="">Choose a database...</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Dump Options (Multi-Select) -->
+            <div class="input-group">
+                <label>Export Options</label>
+                <div class="checkbox-group"
+                    style="display: flex; flex-direction: column; gap: 8px; background: var(--bg-input); padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+
+                    <label class="checkbox-item"
+                        style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" name="exportOption" value="Obscure"
+                            style="width: 16px; height: 16px; accent-color: var(--primary);">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-weight: 500; color: var(--text-main);">🔒 Obscure Data</span>
+                            <span style="font-size: 11px; color: var(--text-muted);">Masks PII (names, phones, emails)
+                                for safety.</span>
+                        </div>
+                    </label>
+
+                    <label class="checkbox-item"
+                        style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" name="exportOption" value="Service Off"
+                            style="width: 16px; height: 16px; accent-color: var(--primary);">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-weight: 500; color: var(--text-main);">🛠️ Service Off</span>
+                            <span style="font-size: 11px; color: var(--text-muted);">Disables external services and
+                                resets configs.</span>
+                        </div>
+                    </label>
+
+                    <label class="checkbox-item"
+                        style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" name="exportOption" value="Tenant Change" id="cbTenantChange"
+                            style="width: 16px; height: 16px; accent-color: var(--primary);">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-weight: 500; color: var(--text-main);">🏷️ Tenant Change</span>
+                            <span style="font-size: 11px; color: var(--text-muted);">Renames the database for importing
+                                as new tenant.</span>
+                        </div>
+                    </label>
+
+                    <hr style="border: 0; border-top: 1px solid var(--border); margin: 5px 0;">
+
+                    <span style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-top: 5px;">Objects
+                        to Export</span>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <label class="checkbox-item"
+                            style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="exportOption" value="Dump Views"
+                                style="width: 14px; height: 14px; accent-color: var(--primary);">
+                            <span style="font-size: 13px; color: var(--text-main);">Dump Views</span>
+                        </label>
+
+                        <label class="checkbox-item"
+                            style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="exportOption" value="Dump Routines"
+                                style="width: 14px; height: 14px; accent-color: var(--primary);">
+                            <span style="font-size: 13px; color: var(--text-main);">Dump Procedures</span>
+                        </label>
+
+                        <label class="checkbox-item"
+                            style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="exportOption" value="Dump Events"
+                                style="width: 14px; height: 14px; accent-color: var(--primary);">
+                            <span style="font-size: 13px; color: var(--text-main);">Dump Events</span>
+                        </label>
+
+                        <label class="checkbox-item"
+                            style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="exportOption" value="Dump Triggers"
+                                style="width: 14px; height: 14px; accent-color: var(--primary);">
+                            <span style="font-size: 13px; color: var(--text-main);">Dump Triggers</span>
+                        </label>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="tenantNameGroup" class="input-group hidden">
+                <label>New Tenant Name / Code</label>
+                <input type="text" id="tenantName" placeholder="e.g. client_demo_uat">
+            </div>
+
+            <!-- Target Host Section -->
+            <div id="targetHostGroup" class="hidden"
+                style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: 20px;">
+                <h3
+                    style="font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.05em;">
+                    Target Database Server
+                </h3>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="input-group" style="grid-column: span 2;">
+                        <label>Target Host Selection</label>
+                        <div class="select-wrapper">
+                            <select id="targetHostSelect" required>
+                                <!-- Populated via JS -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Target user and password run in the background based on the saved host selection -->
+                    <div id="targetCredentialsGroup" class="hidden">
+                        <div class="input-group">
+                            <label>Target User</label>
+                            <input type="text" id="targetUser" placeholder="root">
+                        </div>
+                    </div>
+
+                    <!-- Target password has been removed from this form, entered by Superuser in Django Admin -->
+
+                    <div class="input-group hidden"> <!-- Port usually 3306, hiding to save space unless needed -->
+                        <input type="number" id="targetPort" value="3306">
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" id="downloadBtn" class="btn btn-primary" onclick="handleExport()">
+                <i class="ri-download-2-line"></i> Download Dump
+            </button>
+
+            <button type="button" id="backBtn" class="btn"
+                style="background: transparent; border: 1px solid var(--border); color: var(--text-muted); margin-top: 16px;">
+                <i class="ri-arrow-left-line"></i> Back
+            </button>
+        </form>
+
+        <!-- Export Progress Dashboard (Hidden by default) -->
+        <div id="exportProgressDashboard" class="hidden progress-dashboard">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h3 style="font-size: 16px; color: var(--text-main);">Export Progress</h3>
+                <span id="exportStatusBadge" class="status-badge status-running">Running</span>
+            </div>
+
+            <div class="progress-bar-container">
+                <div id="exportProgressBar" class="progress-bar"></div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted);">
+                <span id="exportProgressText">Initializing...</span>
+                <span><span id="exportPercentage">0</span>%</span>
+            </div>
+
+            <div id="activeControls" class="control-btn-group">
+                <button id="btnPauseResume" class="btn"
+                    style="background: var(--bg-input); color: var(--text-main); flex: 1;"
+                    onclick="togglePauseResume()">
+                    <i class="ri-pause-circle-line"></i> Pause
+                </button>
+                <button id="btnCancel" class="btn"
+                    style="background: rgba(239, 68, 68, 0.15); color: var(--danger); flex: 1;"
+                    onclick="cancelAsyncExport()">
+                    <i class="ri-stop-circle-line"></i> Cancel
+                </button>
+            </div>
+
+            <div id="downloadReadySection" class="hidden"
+                style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
+                <p style="text-align: center; margin-bottom: 12px; color: var(--success);">Export Completed
+                    Successfully!</p>
+                <button id="btnFinalDownload" class="btn btn-success" onclick="downloadArtifact()">
+                    <i class="ri-download-cloud-2-line"></i> Download Zip
+                </button>
+                <button class="btn" onclick="resetExportUI()"
+                    style="margin-top: 8px; background: transparent; border: 1px solid var(--border);">Start New
+                    Export</button>
+            </div>
+        </div>
+
+        <!-- Active Jobs Dashboard -->
+        <div id="activeJobsDashboard" class="hidden" style="margin: 0 auto; max-width: 600px; padding: 20px;">
+            <div
+                style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin: 0;">Active Processes</h3>
+                    <button type="button" class="btn" onclick="resetExportUI()"
+                        style="width: auto; padding: 8px 16px; background: rgba(255,255,255,0.05);">
+                        <i class="ri-arrow-left-line"></i> Back to Form
+                    </button>
+                </div>
+
+                <div id="activeJobsList" style="display: flex; flex-direction: column; gap: 12px;">
+                    <!-- Renders here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Requests Dashboard -->
+        <div id="pendingRequestsDashboard" class="hidden" style="margin-top: 20px;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                <h3 style="font-size: 18px; color: var(--text-main); margin: 0; white-space: nowrap;">Pending Approvals
+                    Queue</h3>
+                <button class="btn" onclick="resetExportUI()"
+                    style="padding: 6px 12px; font-size: 12px; background: rgba(30,41,59,1); border: 1px solid var(--border); white-space: nowrap;">
+                    <i class="ri-arrow-left-line"></i> Back to Form
+                </button>
+            </div>
+
+            <div id="pendingRequestsList"
+                style="display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto;">
+                <!-- Filled via JS -->
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading" class="loader-overlay">
+            <div class="spinner-ring"></div>
+            <p id="loadingText" style="margin-top: 16px; font-weight: 500;">Processing...</p>
+        </div>
+    </div>
+
+    <!-- Developer Console Drawer -->
+    <div id="debugDrawer" class="drawer">
+        <div class="drawer-handle" onclick="toggleDrawer()">
+            Developer Console <i id="drawerIcon" class="ri-arrow-up-s-line"></i>
+        </div>
+        <div id="debugLog" class="drawer-content"></div>
+    </div>
+
+    <!-- Retry Modal -->
+    <div id="retryModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="ri-error-warning-fill" style="font-size: 32px; color: var(--danger);"></i>
+                <h3 class="modal-title">Import Incomplete</h3>
+            </div>
+
+            <!-- Shown only when tables that previously failed now pass on retry -->
+            <div id="nowPassedBanner" class="now-passed-banner" style="display:none;">
+                <strong>✅ <span id="nowPassedCount">0</span> table(s) recovered since last attempt</strong>
+                <div id="nowPassedList" class="passed-list"></div>
+            </div>
+
+            <p style="margin-bottom: 8px; color: var(--text-muted); font-size: 14px; line-height: 1.5;">
+                The following tables failed to import:</p>
+            <ul id="failedTablesList" class="failed-tables-list">
+                <!-- Items injected by JS -->
+            </ul>
+            <div class="modal-actions">
+                <button id="retryFailedBtn" class="btn"
+                    style="background: var(--primary); color: white; width: 100%; justify-content: center; font-weight: 600;">
+                    <i class="ri-refresh-line" style="margin-right: 8px; font-size: 18px;"></i> Retry Failed Tables Only
+                </button>
+                <button id="retryFullBtn" class="btn"
+                    style="background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary); color: var(--primary); width: 100%; justify-content: center; font-weight: 600;">
+                    <i class="ri-database-2-line" style="margin-right: 8px; font-size: 18px;"></i> Restart Full Export
+                </button>
+
+                <button id="retryIgnoreBtn" class="btn"
+                    style="background: rgba(234, 179, 8, 0.1); border: 1px solid #eab308; color: #eab308; width: 100%; justify-content: center; font-weight: 600;">
+                    <i class="ri-alert-line" style="margin-right: 8px; font-size: 18px;"></i> Proceed with Failures
+                </button>
+
+                <button id="retryCancelBtn" class="btn"
+                    style="background: transparent; border: 1px solid transparent; color: var(--text-muted); width: 100%; justify-content: center;">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const connectionForm = document.getElementById('connectionForm');
+        const exportForm = document.getElementById('exportForm');
+        const connectBtn = document.getElementById('connectBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const backBtn = document.getElementById('backBtn');
+        const loading = document.getElementById('loading');
+        const loadingText = document.getElementById('loadingText');
+
+        // Removed legacy error/success message elements
+
+        const databaseSelect = document.getElementById('database');
+        const hostSelect = document.getElementById('hostSelect');
+
+        // Global Error Handler
+        window.onerror = function (msg, url, line, col, error) {
+            console.error('Global Error:', msg, url, line, col, error);
+            if (typeof showToast === 'function') {
+                showToast(`Script Error: ${msg}`, 'error');
+            }
+            // Also try to log to debug drawer if it exists
+            const debugEl = document.getElementById('debugLog');
+            if (debugEl) {
+                debugEl.innerHTML += `<span style="color:red; font-weight:bold;">❌ Error: ${msg} <br>Line: ${line}:${col}</span><br>`;
+            }
+            return false;
+        };
+
+        let credentials = {};
+        let hostsData = {};
+        let currentMode = 'predefined'; // Default connection mode
+
+        // Load hosts on page load
+        async function loadHosts() {
+            try {
+                const response = await fetch('/get-hosts');
+                const data = await response.json();
+                hostsData = data.hosts;
+
+                hostSelect.innerHTML = '<option value="">Choose a host...</option>';
+                const targetHostSelect = document.getElementById('targetHostSelect');
+                if (targetHostSelect) targetHostSelect.innerHTML = '<option value="">Choose a target host...</option>';
+
+                Object.keys(hostsData).forEach(hostKey => {
+                    const host = hostsData[hostKey];
+                    const optionText = `${hostKey} (${host.ip}:${host.port})`;
+
+                    const option1 = document.createElement('option');
+                    option1.value = hostKey;
+                    option1.textContent = optionText;
+                    hostSelect.appendChild(option1);
+
+                    if (targetHostSelect) {
+                        const option2 = document.createElement('option');
+                        option2.value = hostKey;
+                        option2.textContent = optionText;
+                        targetHostSelect.appendChild(option2);
+                    }
+                });
+            } catch (error) {
+                console.error('Failed to load hosts', error);
+                if (typeof showToast === 'function') showToast(`Failed to load hosts: ${error.message}`, 'error');
+            }
+        }
+
+        // Load hosts and show connection form
+        loadHosts().then(() => {
+            connectionForm.classList.remove('hidden');
+        });
+
+        // Auto-fill user and password when a host is selected
+        hostSelect.addEventListener('change', (e) => {
+            const selectedHostKey = e.target.value;
+            if (selectedHostKey && hostsData[selectedHostKey]) {
+                const host = hostsData[selectedHostKey];
+                document.getElementById('user').value = host.user || '';
+                document.getElementById('password').value = host.password || '';
+
+                // If the host has no stored username (e.g., production host),
+                // show the credentials group so the user knows to type it manually
+                const credGroup = document.getElementById('credentialsGroup');
+                if (!host.user) {
+                    credGroup.classList.remove('hidden');
+                    document.getElementById('user').placeholder = 'Enter username (required for this host)';
+                } else {
+                    credGroup.classList.add('hidden');
+                    document.getElementById('user').placeholder = '';
+                }
+            } else {
+                document.getElementById('user').value = '';
+                document.getElementById('password').value = '';
+                document.getElementById('credentialsGroup').classList.add('hidden');
+            }
+        });
+
+        // Auto-fill Target user when Target host is selected
+        document.getElementById('targetHostSelect').addEventListener('change', (e) => {
+            const selectedHostKey = e.target.value;
+            if (selectedHostKey && hostsData[selectedHostKey]) {
+                const host = hostsData[selectedHostKey];
+                document.getElementById('targetUser').value = host.user || '';
+            } else {
+                document.getElementById('targetUser').value = '';
+            }
+        });
+
+        // Operation Mode Logic (Backup vs Migration)
+        let opMode = 'backup';
+
+        window.setOpMode = function (mode) {
+            opMode = mode;
+
+            // Toggle UI Buttons
+            document.getElementById('opModeBackup').classList.toggle('active', mode === 'backup');
+            document.getElementById('opModeMigrate').classList.toggle('active', mode === 'migrate');
+
+            // Toggle Target Host Section
+            const targetHostGroup = document.getElementById('targetHostGroup');
+            if (mode === 'migrate') {
+                targetHostGroup.classList.remove('hidden');
+                document.getElementById('downloadBtn').innerHTML = '<i class="ri-rocket-line"></i> Start Migration';
+                // Also force Plain or Tenant Change mode only?
+            } else {
+                targetHostGroup.classList.add('hidden');
+                document.getElementById('downloadBtn').innerHTML = '<i class="ri-download-2-line"></i> Download Dump';
+            }
+        };
+
+        window.setMode = function (mode) {
+            currentMode = mode;
+
+            // Toggle UI Buttons
+            document.getElementById('modePredefined').classList.toggle('active', mode === 'predefined');
+            document.getElementById('modeManual').classList.toggle('active', mode === 'manual');
+
+            // Toggle Inputs
+            if (mode === 'predefined') {
+                document.getElementById('predefinedHostGroup').classList.remove('hidden');
+                document.getElementById('manualHostGroup').classList.add('hidden');
+                document.getElementById('credentialsGroup').classList.add('hidden');
+            } else {
+                document.getElementById('predefinedHostGroup').classList.add('hidden');
+                document.getElementById('manualHostGroup').classList.remove('hidden');
+                document.getElementById('credentialsGroup').classList.remove('hidden');
+                document.getElementById('user').value = '';
+                document.getElementById('password').value = '';
+            }
+        };
+
+
+        // --- UI Helpers ---
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            let icon = 'ri-information-line';
+            if (type === 'success') icon = 'ri-checkbox-circle-line';
+            if (type === 'error') icon = 'ri-error-warning-line';
+
+            toast.innerHTML = `
+                <i class="${icon} toast-icon"></i>
+                <div class="toast-content">
+                    <div class="toast-title">${type.charAt(0).toUpperCase() + type.slice(1)}</div>
+                    <div class="toast-msg">${message}</div>
+                </div>
+            `;
+
+            container.appendChild(toast);
+
+            // Remove after 5 seconds
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+
+        function showError(msg) { showToast(msg, 'error'); }
+        function showSuccess(msg) { showToast(msg, 'success'); }
+        function hideMessages() { /* No-op for toasts */ }
+
+        // --- Drawer Logic ---
+        function toggleDrawer() {
+            const drawer = document.getElementById('debugDrawer');
+            const icon = document.getElementById('drawerIcon');
+            drawer.classList.toggle('open');
+
+            if (drawer.classList.contains('open')) {
+                icon.className = 'ri-arrow-down-s-line';
+            } else {
+                icon.className = 'ri-arrow-up-s-line';
+            }
+        }
+
+        function log(msg) {
+            // console.log(msg); // Disabled user console logs
+            const debugLog = document.getElementById('debugLog');
+            if (debugLog) {
+                const time = new Date().toLocaleTimeString();
+                const entry = document.createElement('div');
+                entry.style.borderBottom = '1px solid #222';
+                entry.style.padding = '4px 0';
+                entry.innerHTML = `<span style="color:#666">[${time}]</span> ${msg}`;
+                debugLog.appendChild(entry);
+                debugLog.scrollTop = debugLog.scrollHeight;
+            }
+        }
+
+        // --- END UI Helpers ---
+
+        // --- Step 1: Connect Logic ---
+        window.handleConnect = async function () {
+            log('🖱️ HandleConnect called');
+            hideMessages();
+
+            let hostIp, port, hostKeyDisplay;
+
+            if (currentMode === 'predefined') {
+                const selectedHostKey = hostSelect.value;
+                if (!selectedHostKey) {
+                    showError('Please select a host');
+                    return;
+                }
+                const selectedHost = hostsData[selectedHostKey];
+                if (!selectedHost) {
+                    showError('Invalid host selected');
+                    return;
+                }
+                hostIp = selectedHost.ip;
+                port = selectedHost.port || 3306;
+                hostKeyDisplay = selectedHostKey;
+            } else {
+                // Manual Mode
+                hostIp = document.getElementById('manualHost').value.trim();
+                port = parseInt(document.getElementById('manualPort').value.trim()) || 3306;
+                hostKeyDisplay = 'manual-' + hostIp;
+
+                if (!hostIp) {
+                    showError('Please enter a Host IP');
+                    return;
+                }
+            }
+
+            const user = document.getElementById('user').value.trim();
+            const password = document.getElementById('password').value;
+
+            log(`Checking credentials for user: ${user}`);
+
+            // Guard: Username must be provided
+            if (!user) {
+                showError('Please enter a Database Username to connect. (Production hosts require manual entry)');
+                connectBtn.disabled = false;
+                connectBtn.innerHTML = '<i class="ri-check-line"></i> Connect & Show Databases';
+                return;
+            }
+
+            credentials = {
+                host: hostIp,
+                port: port,
+                hostKey: hostKeyDisplay,
+                user: user,
+                password: password
+            };
+
+            connectBtn.disabled = true;
+            connectBtn.innerHTML = '<svg class="icon" width="20" height="20" fill="currentColor" viewBox="0 0 20 20" style="display: inline-block; animation: spin 1s linear infinite;"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Connecting...';
+            loading.classList.add('active');
+            loadingText.textContent = 'Connecting to database...';
+
+            try {
+                const response = await fetch('/get-databases', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        host: hostIp,
+                        port: port,
+                        user: user,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    log(`Success! Found ${data.databases.length} databases.`);
+                    // Populate database dropdown
+                    databaseSelect.innerHTML = '<option value="">Choose a database...</option>';
+                    data.databases.forEach(db => {
+                        const option = document.createElement('option');
+                        option.value = db;
+                        option.textContent = db;
+                        databaseSelect.appendChild(option);
+                    });
+
+                    // Show export form
+                    connectionForm.classList.add('hidden');
+                    exportForm.classList.remove('hidden');
+                    showSuccess(`Connected to ${hostKeyDisplay}! Found ${data.databases.length} databases.`);
+                } else {
+                    log('Connection Failed: ' + data.error);
+                    showError(`Connection failed: ${data.error}`);
+                }
+            } catch (error) {
+                log('Error: ' + error.message);
+                showError(`An error occurred: ${error.message}`);
+            } finally {
+                connectBtn.disabled = false;
+                // Use explicit width/height in SVG to be safe
+                connectBtn.innerHTML = '<svg class="icon" width="20" height="20" fill="currentColor" viewBox="0 0 20 20" style="display: inline-block; vertical-align: bottom;"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Connect & Show Databases';
+                loading.classList.remove('active');
+            }
+        };
+
+        // --- Step 2: Export/Migrate Logic ---
+        async function handleMigration() {
+            log('🖱️ HandleMigration called');
+            hideMessages();
+
+            const database = databaseSelect.value;
+            if (!database) {
+                showError('Please select a database');
+                return;
+            }
+
+            downloadBtn.disabled = true;
+            loading.classList.add('active');
+
+            // Collect Checks
+            // Collect Checks
+            const dumpModes = Array.from(document.querySelectorAll('input[name="exportOption"]:checked')).map(el => el.value);
+            if (dumpModes.length === 0) dumpModes.push('Plain'); // Default
+
+            const newTenantName = document.getElementById('tenantName').value;
+            if (dumpModes.includes('Tenant Change') && !newTenantName) {
+                showError("New Tenant Name required for Tenant Change");
+                loading.classList.remove('active');
+                downloadBtn.disabled = false;
+                return;
+            }
+
+            loadingText.textContent = 'Starting Migration Job...';
+
+            const endpoint = '/migrate';
+
+            const payload = {
+                host: credentials.host,
+                port: credentials.port,
+                host_key: credentials.hostKey,
+                user: credentials.user,
+                password: credentials.password,
+                database: database,
+                dump_modes: dumpModes, // Send Array
+                new_tenant_name: newTenantName
+            };
+
+            log(`Preparing payload for ${endpoint}`);
+
+            // Migration specific credentials
+            log('Adding migration credentials to payload');
+            payload.source_host = credentials.host;
+            payload.source_port = credentials.port;
+            payload.source_user = credentials.user;
+            payload.source_password = credentials.password;
+
+            const targetHostKey = document.getElementById('targetHostSelect').value;
+            if (!targetHostKey || !hostsData[targetHostKey]) {
+                showError("Please select a Target Host");
+                loading.classList.remove('active');
+                downloadBtn.disabled = false;
+                return;
+            }
+
+            const targetHostObj = hostsData[targetHostKey];
+
+            payload.target_host = targetHostObj.ip;
+            payload.target_port = targetHostObj.port || 3306;
+            payload.target_user = document.getElementById('targetUser').value;
+
+            if (!payload.target_host || !payload.target_user) {
+                showError("Target Host IP and Username are required. Ensure your Saved Host has credentials.");
+                loading.classList.remove('active');
+                downloadBtn.disabled = false;
+                return;
+            }
+
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (data.error) throw new Error(data.error);
+
+                if (data.status === 'pending_approval') {
+                    showToast(`⚠️ Approval Required. Request ID: ${data.request_id}`, 'warning');
+                    updateStatusBadge('Pending Approval', 'status-paused');
+                    document.getElementById('exportProgressText').innerText = "Waiting for Admin Approval...";
+
+                    // Show Pending Dashboard
+                    showPendingRequests();
+
+                    // Start Polling for Approval
+                    loading.classList.remove('active');
+                    startApprovalPolling(data.request_id);
+                    return;
+                }
+                // Success: Switch to Dashboard
+                currentJobId = data.job_id;
+                isPaused = false;
+
+                // Hide Form, Show Dashboard
+                exportForm.classList.add('hidden');
+                document.getElementById('exportProgressDashboard').classList.remove('hidden');
+                document.getElementById('downloadReadySection').classList.add('hidden');
+                document.getElementById('activeControls').classList.remove('hidden');
+
+                // Initialize UI
+                document.getElementById('exportProgressBar').style.width = '0%';
+                document.getElementById('exportPercentage').innerText = '0';
+                updateStatusBadge('Initializing Migration', 'status-running');
+
+                // Start Polling
+                startPolling(currentJobId);
+
+                loading.classList.remove('active');
+            } catch (error) {
+                showError(`An error occurred: ${error.message}`);
+                console.error(error);
+                loading.classList.remove('active');
+                downloadBtn.disabled = false;
+            }
+        }
+
+        // --- NEW ASYNC EXPORT LOGIC ---
+        // Global Async Job ID
+        let currentJobId = null;
+        let isPaused = false;
+        let pollInterval = null;
+
+        async function handleExport() {
+            const database = databaseSelect.value;
+            if (!database) {
+                showToast('Please select a database', 'error');
+                return;
+            }
+
+            // Check Mode
+            if (opMode === 'migrate') {
+                return handleMigration();
+            }
+
+            // Logic for Backup/Dump
+            // Logic for Backup/Dump
+            const dumpModes = Array.from(document.querySelectorAll('input[name="exportOption"]:checked')).map(el => el.value);
+            if (dumpModes.length === 0) dumpModes.push('Plain'); // Default
+
+            let payload = {
+                database: database,
+                dump_modes: dumpModes,
+                host_key: currentMode === 'predefined' ? hostSelect.value : 'manual'
+            };
+
+            // Add Tenant Name if required
+            if (dumpModes.includes('Tenant Change')) {
+                const tenantName = document.getElementById('tenantName').value;
+                if (!tenantName) {
+                    showToast('New Tenant Name is required for Tenant Change mode.', 'error');
+                    return;
+                }
+                payload.new_tenant_name = tenantName;
+            }
+
+            return startAsyncExport(payload);
+        }
+
+        async function startAsyncExport(payload) {
+            // UI Upgrade
+            exportForm.classList.add('hidden');
+            const dashboard = document.getElementById('exportProgressDashboard');
+            dashboard.classList.remove('hidden');
+
+            // Reset Dashboard UI
+            document.getElementById('downloadReadySection').classList.add('hidden');
+            document.getElementById('activeControls').classList.remove('hidden');
+            document.getElementById('exportProgressBar').style.width = '0%';
+            document.getElementById('exportPercentage').innerText = '0';
+            document.getElementById('exportProgressText').innerText = "Starting...";
+            updateStatusBadge('Starting', 'status-running');
+
+            try {
+                const response = await fetch('/start-export', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+
+                if (data.status === 'pending_approval') {
+                    showToast(`⚠️ Approval Required. Request ID: ${data.request_id}`, 'warning');
+                    updateStatusBadge('Pending Approval', 'status-paused');
+                    // Show Pending Dashboard
+                    showPendingRequests();
+
+                    // Start Polling for Approval
+                    loading.classList.remove('active');
+                    startApprovalPolling(data.request_id);
+                    return;
+                }
+
+                currentJobId = data.job_id;
+                isPaused = false;
+
+                // Start Polling
+                if (currentJobId) {
+                    startPolling(currentJobId);
+                } else {
+                    throw new Error("Invalid server response: Missing Job ID");
+                }
+
+            } catch (error) {
+                console.error("Export Start Failed", error);
+                showToast(error.message, 'error');
+                resetExportUI();
+            }
+        }
+
+        function startPolling(jobId) {
+            if (pollInterval) clearInterval(pollInterval);
+            pollInterval = setInterval(() => checkExportStatus(jobId), 1000);
+        }
+
+        async function checkExportStatus(jobId) {
+            try {
+                const response = await fetch(`/export-status/${jobId}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    console.error("Poll Error", data.error);
+                    // If Job Not Found (404), server likely restarted or job expired. Stop polling.
+                    if (data.error === "Job not found" || response.status === 404) {
+                        clearInterval(pollInterval);
+                        updateStatusBadge('Session Lost', 'status-cancelled');
+                        showToast('Server restarted or session expired. Please retry.', 'error');
+                        document.getElementById('activeControls').classList.add('hidden');
+                        // Optionally re-enable buttons
+                    }
+                    return;
+                }
+
+                // Update Progress
+                const progress = data.progress;
+                let pct = 0;
+                if (progress.total > 0) {
+                    pct = Math.floor((progress.current / progress.total) * 100);
+                    // Ensure we don't show 100% if not actually done (e.g. floating point precision usually handles this with floor, but safe check)
+                    if (pct === 100 && progress.current < progress.total) {
+                        pct = 99;
+                    }
+                }
+                document.getElementById('exportProgressBar').style.width = `${pct}%`;
+                document.getElementById('exportPercentage').innerText = pct;
+                document.getElementById('exportProgressText').innerText = `${progress.current} / ${progress.total} Tables`;
+
+                // Update Status
+                const status = data.status;
+
+                if (data.paused) {
+                    isPaused = true;
+                    updateStatusBadge('Paused', 'status-paused');
+                    document.getElementById('btnPauseResume').innerHTML = '<i class="ri-play-circle-line"></i> Resume';
+                } else {
+                    isPaused = false;
+                    updateStatusBadge(status, 'status-running');
+                    document.getElementById('btnPauseResume').innerHTML = '<i class="ri-pause-circle-line"></i> Pause';
+                }
+
+                if (status === 'Importing') {
+                    // Update Text for Import phase
+                    document.getElementById('exportProgressText').innerText = `Importing to Target: ${progress.current} / ${progress.total} Tables`;
+                } else if (status === 'Cloning Database...' || status === 'Obscuring Data...' || status === 'Applying Service Off...') {
+                    // Indeterminate phases
+                    document.getElementById('exportProgressText').innerText = status;
+                    document.getElementById('exportProgressBar').style.width = '100%';
+                    document.getElementById('exportProgressBar').classList.add('indeterminate'); // We can add CSS for this later or just keep full width
+                    document.getElementById('exportPercentage').innerText = '';
+                } else {
+                    // Standard Export
+                    document.getElementById('exportProgressText').innerText = `${progress.current} / ${progress.total} Tables`;
+                }
+
+                if (status === 'Completed') {
+                    clearInterval(pollInterval);
+                    updateStatusBadge('Completed', 'status-running');
+                    document.getElementById('activeControls').classList.add('hidden');
+                    document.getElementById('downloadReadySection').classList.remove('hidden');
+
+                    // IF response indicates Migration Success, generic download might not be needed?
+                    // But run_async_export always produces a zip.
+                    // We can check if it was a migration? 
+                    // data.params.target_host? 
+                    // Let's assume generic "Completed". User can download the backup of what was migrated.
+                    showToast('Process Completed Successfully', 'success');
+
+                } else if (status === 'Failed' || status === 'Cancelled') {
+                    clearInterval(pollInterval);
+                    updateStatusBadge(status, 'status-cancelled');
+                    showToast(`Process ${status}: ${data.error || ''}`, 'error');
+                    document.getElementById('activeControls').classList.add('hidden');
+                    document.getElementById('downloadReadySection').classList.remove('hidden');
+                    document.getElementById('btnFinalDownload').classList.add('hidden');
+                } else if (status === 'Partial Failure') {
+                    updateStatusBadge(status, 'status-cancelled');
+                    document.getElementById('activeControls').classList.add('hidden');
+
+                    if (data.failed_tables && data.failed_tables.length > 0) {
+                        // Tables are ready — stop polling and show full modal
+                        clearInterval(pollInterval);
+                        showRetryModal({
+                            job_id: jobId,
+                            failed_tables: data.failed_tables || [],
+                            table_failure_details: data.table_failure_details || [],
+                            now_passed: data.now_passed || []
+                        });
+                        showToast("Completed with some failures.", "warning");
+                    } else {
+                        // Race condition: status flipped to Partial Failure but retry job
+                        // not yet registered. Open the modal with a loading message and
+                        // keep polling at a slower rate until tables arrive.
+                        if (!retryModal.classList.contains('active')) {
+                            showRetryModal({ job_id: jobId, failed_tables: [], table_failure_details: [], now_passed: [] });
+                            showToast("Completed with some failures. Loading failed tables...", "warning");
+                        }
+                        // Slow down poll to 2s — we're just waiting for job data
+                        clearInterval(pollInterval);
+                        pollInterval = setInterval(() => checkExportStatus(jobId), 2000);
+                    }
+                }
+
+
+            } catch (e) {
+                console.error("Polling Exception", e);
+            }
+        }
+
+        function updateStatusBadge(text, className) {
+            const badge = document.getElementById('exportStatusBadge');
+            badge.innerText = text;
+            badge.className = `status-badge ${className}`;
+        }
+
+        async function togglePauseResume() {
+            const action = isPaused ? 'resume' : 'pause';
+            try {
+                await fetch(`/export-control/${currentJobId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action })
+                });
+            } catch (e) {
+                showToast(`Failed to ${action}`, 'error');
+            }
+        }
+
+        async function cancelAsyncExport() {
+            if (!confirm("Are you sure you want to cancel the export?")) return;
+            try {
+                await fetch(`/export-control/${currentJobId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'cancel' })
+                });
+            } catch (e) {
+                showToast('Failed to cancel', 'error');
+            }
+        }
+
+        function downloadArtifact() {
+            window.location.href = `/download-artifact/${currentJobId}`;
+        }
+
+        // --- Approval Polling Logic ---
+        let approvalPollInterval = null;
+
+        function startApprovalPolling(requestId) {
+            if (approvalPollInterval) clearInterval(approvalPollInterval);
+            console.log(`Starting approval polling for Request ID: ${requestId}`);
+
+            approvalPollInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/check-request-status/${requestId}`);
+                    const data = await response.json();
+
+                    if (data.error) {
+                        console.error("Approval Poll Error:", data.error);
+                        return; // Keep trying?
+                    }
+
+                    if (data.status === 'APPROVED') {
+                        clearInterval(approvalPollInterval);
+                        showToast("Request Approved! Starting execution...", "success");
+                        updateStatusBadge("Approved - Starting...", "status-running");
+
+                        // Trigger Execution
+                        executeApprovedRequest(requestId);
+                    } else if (data.status === 'REJECTED') {
+                        clearInterval(approvalPollInterval);
+                        showToast("Request Rejected by Admin.", "error");
+                        updateStatusBadge("Rejected", "status-cancelled");
+                        document.getElementById('activeControls').classList.add('hidden');
+                        // Maybe show reset?
+                    } else if (data.status === 'PENDING' && data.admin_approved) {
+                        const reviewer = data.reviewed_by ? data.reviewed_by : 'Admin';
+                        updateStatusBadge(`Endorsed by ${reviewer}`, "status-paused");
+                        document.getElementById('exportProgressText').innerText = `Endorsed by ${reviewer} - Waiting for Superuser Approval...`;
+                    }
+
+                } catch (e) {
+                    console.error("Approval poll exception", e);
+                }
+            }, 3000); // Poll every 3 seconds
+        }
+
+        async function executeApprovedRequest(requestId) {
+            // Setup Progress Dashboard UI before executing
+            exportForm.classList.add('hidden');
+            document.getElementById('connectionForm').classList.add('hidden');
+            document.getElementById('pendingRequestsDashboard').classList.add('hidden');
+            document.getElementById('downloadReadySection').classList.add('hidden');
+            document.getElementById('activeControls').classList.remove('hidden');
+            document.getElementById('exportProgressDashboard').classList.remove('hidden');
+
+            document.getElementById('exportProgressBar').style.width = '0%';
+            document.getElementById('exportPercentage').innerText = '0';
+            document.getElementById('exportProgressText').innerText = "Starting...";
+            updateStatusBadge('Starting', 'status-running');
+
+            try {
+                const response = await fetch(`/execute-operation/${requestId}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.error) {
+                    showToast(`Execution Failed: ${data.error}`, 'error');
+                    updateStatusBadge("Execution Failed", "status-cancelled");
+                    return;
+                }
+
+                if (data.job_id) {
+                    currentJobId = data.job_id;
+                    isPaused = false;
+                    document.getElementById('activeControls').classList.remove('hidden');
+
+                    // Remove loading overlay as execution starts
+                    loading.classList.remove('active');
+
+                    startPolling(currentJobId);
+                }
+            } catch (e) {
+                showToast("Failed to trigger execution", "error");
+            }
+        }
+
+        function resetExportUI() {
+            if (pollInterval) clearInterval(pollInterval);
+            if (approvalPollInterval) clearInterval(approvalPollInterval);
+            document.getElementById('exportProgressDashboard').classList.add('hidden');
+            document.getElementById('pendingRequestsDashboard').classList.add('hidden');
+            document.getElementById('activeJobsDashboard').classList.add('hidden');
+            exportForm.classList.remove('hidden');
+            document.getElementById('activeControls').classList.remove('hidden');
+            currentJobId = null;
+        }
+
+        // --- Active Jobs Dashboard Logic ---
+        function showActiveJobs() {
+            exportForm.classList.add('hidden');
+            document.getElementById('exportProgressDashboard').classList.add('hidden');
+            document.getElementById('connectionForm').classList.add('hidden');
+            document.getElementById('pendingRequestsDashboard').classList.add('hidden');
+            document.getElementById('activeJobsDashboard').classList.remove('hidden');
+            loadActiveJobs();
+        }
+
+        async function loadActiveJobs() {
+            const listDiv = document.getElementById('activeJobsList');
+            listDiv.innerHTML = '<div style="color: var(--text-muted);">Loading active jobs...</div>';
+
+            try {
+                const res = await fetch('/my-active-jobs');
+                const data = await res.json();
+
+                if (data.error) {
+                    listDiv.innerHTML = `<div style="color: var(--danger);">Failed to load: ${data.error}</div>`;
+                    return;
+                }
+
+                if (!data.active_jobs || data.active_jobs.length === 0) {
+                    listDiv.innerHTML = '<div style="color: var(--text-muted); padding: 20px; text-align: center; border: 1px dashed var(--border); border-radius: 8px;">No active processes running.</div>';
+                    return;
+                }
+
+                listDiv.innerHTML = '';
+                data.active_jobs.forEach(job => {
+                    const card = document.createElement('div');
+                    card.style.cssText = 'background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border); border-radius: 8px; padding: 16px; display: flex; justify-content: space-between; align-items: center;';
+
+                    const pct = job.progress && job.progress.total > 0
+                        ? Math.round((job.progress.current / job.progress.total) * 100)
+                        : 0;
+
+                    const infoHtml = `
+                        <div>
+                            <div style="font-weight: bold; color: var(--text-main); margin-bottom: 4px;">Job: ${job.operation_type} on ${job.database}</div>
+                            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Started: ${new Date(job.start_time).toLocaleString()}</div>
+                            <div style="font-size: 12px; color: var(--success); font-weight: 500;">
+                                <i class="ri-settings-5-fill ri-spin" style="font-size: 10px; vertical-align: middle;"></i> ${job.status} (${pct}%)
+                            </div>
+                        </div>
+                    `;
+
+                    const actionHtml = `<button class="btn btn-primary" onclick="resumeJobProgress('${job.job_id}')" style="padding: 6px 12px; font-size: 13px;">View Progress</button>`;
+
+                    card.innerHTML = infoHtml + `<div>${actionHtml}</div>`;
+                    listDiv.appendChild(card);
+                });
+
+            } catch (e) {
+                console.error(e);
+                listDiv.innerHTML = '<div style="color: var(--danger);">Failed to load active jobs.</div>';
+            }
+        }
+
+        function resumeJobProgress(jobId) {
+            document.getElementById('activeJobsDashboard').classList.add('hidden');
+            document.getElementById('exportProgressDashboard').classList.remove('hidden');
+            document.getElementById('downloadReadySection').classList.add('hidden');
+            document.getElementById('activeControls').classList.remove('hidden');
+
+            // ── IMPORTANT: Reset progress UI before polling the new job.
+            // Without this, the bar stays frozen at the previous job's percentage
+            // when switching between two concurrent jobs.
+            document.getElementById('exportProgressBar').style.width = '0%';
+            document.getElementById('exportPercentage').innerText = '0';
+            document.getElementById('exportProgressText').innerText = 'Loading…';
+            document.getElementById('exportProgressBar').classList.remove('indeterminate');
+            updateStatusBadge('Loading…', 'status-running');
+
+            currentJobId = jobId;
+            isPaused = false;
+
+            startPolling(currentJobId);
+        }
+
+        // --- Pending Requests Dashboard Logic ---
+        function showPendingRequests() {
+            exportForm.classList.add('hidden');
+            document.getElementById('exportProgressDashboard').classList.add('hidden');
+            document.getElementById('connectionForm').classList.add('hidden');
+            document.getElementById('pendingRequestsDashboard').classList.remove('hidden');
+            loadPendingRequests();
+        }
+
+        async function loadPendingRequests() {
+            const listDiv = document.getElementById('pendingRequestsList');
+            listDiv.innerHTML = '<div style="color: var(--text-muted);">Loading requests...</div>';
+
+            try {
+                const res = await fetch('/my-pending-requests');
+                const data = await res.json();
+
+                if (data.error) {
+                    listDiv.innerHTML = `<div style="color: var(--danger);">Failed to load: ${data.error}</div>`;
+                    return;
+                }
+
+                if (!data.requests || data.requests.length === 0) {
+                    listDiv.innerHTML = '<div style="color: var(--text-muted); padding: 20px; text-align: center; border: 1px dashed var(--border); border-radius: 8px;">No pending or approved requests found.</div>';
+                    return;
+                }
+
+                listDiv.innerHTML = '';
+                data.requests.forEach(req => {
+                    const card = document.createElement('div');
+                    card.style.cssText = 'background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border); border-radius: 8px; padding: 16px; display: flex; justify-content: space-between; align-items: center;';
+
+                    let statusColor = 'var(--text-muted)';
+                    let statusLabel = 'Pending';
+                    if (req.status === 'APPROVED') {
+                        statusColor = 'var(--success)';
+                        statusLabel = 'Approved - Ready to Execute';
+                    } else if (req.status === 'PENDING') {
+                        if (req.admin_approved) statusLabel = 'Endorsed by Admin (Waiting for Superuser)';
+                        statusColor = '#f59e0b'; // warning/orange
+                    }
+
+                    let paramsStr = '';
+                    if (req.params) {
+                        const keysToPull = req.operation_type === 'IMPORT' ? ['source_database', 'target_host'] : ['database', 'dump_modes'];
+                        const summary = {};
+                        for (const k in req.params) {
+                            if (keysToPull.includes(k) || k === 'database') {
+                                // Explicitly block any password key from ever showing up in the summary
+                                if (k !== 'password' && k !== 'source_password' && k !== 'target_password') {
+                                    summary[k] = req.params[k];
+                                }
+                            }
+                        }
+                        paramsStr = JSON.stringify(summary).replace(/\"/g, '');
+                    }
+
+                    const infoHtml = `
+                        <div>
+                            <div style="font-weight: bold; color: var(--text-main); margin-bottom: 4px;">Request #${req.id}: ${req.operation_type} on ${req.target_db}</div>
+                            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Params: ${paramsStr}</div>
+                            <div style="font-size: 12px; color: ${statusColor}; font-weight: 500;">
+                                <i class="ri-checkbox-blank-circle-fill" style="font-size: 8px; vertical-align: middle;"></i> ${statusLabel}
+                            </div>
+                        </div>
+                    `;
+
+                    const actionHtml = req.status === 'APPROVED'
+                        ? `<button class="btn btn-success" onclick="startExecutionFromDashboard(${req.id})" style="padding: 6px 12px; font-size: 13px;">Execute</button>`
+                        : `<button class="btn" style="padding: 6px 12px; font-size: 13px; cursor: not-allowed; opacity: 0.5;">Awaiting Approval</button>`;
+
+                    card.innerHTML = infoHtml + `<div>${actionHtml}</div>`;
+                    listDiv.appendChild(card);
+                });
+
+            } catch (e) {
+                console.error(e);
+                listDiv.innerHTML = '<div style="color: var(--danger);">Failed to communicate with server.</div>';
+            }
+        }
+
+        async function startExecutionFromDashboard(requestId) {
+            loading.classList.add('active');
+            executeApprovedRequest(requestId);
+        }
+
+        // --- Retry Modal Logic ---
+        const retryModal = document.getElementById('retryModal');
+        const dumpModeSelect = document.getElementById('dumpMode');
+        const modeDescription = document.getElementById('modeDescriptionText');
+        const tenantNameGroup = document.getElementById('tenantNameGroup');
+        const tenantNameInput = document.getElementById('tenantName');
+
+        const descriptions = {
+            'Plain': 'Standard exact copy of the database. Contains real live data.',
+            'Obscure': '🔒 Masks sensitive PII (names, phones, emails, bank info) for safe sharing.',
+            'Service Off': '🛠️ Disables external services (S3, SMS, Payment) and resets config for safe local testing.',
+            'Tenant Change': '🏷️ Renames the database in the export (e.g. client_prod -> client_demo) for importing as a new tenant.'
+        };
+
+        const dumpModeCheckboxes = document.querySelectorAll('input[name="exportOption"]');
+        const cbTenantChange = document.getElementById('cbTenantChange');
+
+        function handleDumpModeChange() {
+            if (cbTenantChange && cbTenantChange.checked) {
+                if (tenantNameGroup) tenantNameGroup.classList.remove('hidden');
+                if (tenantNameInput) tenantNameInput.required = true;
+            } else {
+                if (tenantNameGroup) tenantNameGroup.classList.add('hidden');
+                if (tenantNameInput) tenantNameInput.required = false;
+            }
+        }
+
+        dumpModeCheckboxes.forEach(cb => {
+            cb.addEventListener('change', handleDumpModeChange);
+        });
+
+        // Trigger initial state
+        handleDumpModeChange();
+
+        const failedTablesList = document.getElementById('failedTablesList');
+        const retryFailedBtn = document.getElementById('retryFailedBtn');
+        const retryFullBtn = document.getElementById('retryFullBtn');
+        const retryIgnoreBtn = document.getElementById('retryIgnoreBtn');
+        const retryCancelBtn = document.getElementById('retryCancelBtn');
+
+
+
+        function showRetryModal(data) {
+            currentJobId = data.job_id;
+
+            const tables = data.failed_tables || [];
+            const details = data.table_failure_details || [];
+            const passed = data.now_passed || [];
+
+            // Build a quick lookup: table name → cleaned reason string
+            const reasonMap = {};
+            details.forEach(d => {
+                // Strip the noisy mysql password-warning line if still present
+                const clean = (d.reason || '')
+                    .replace(/mysql:\s*\[Warning\]\s*Using a password on the command line interface can be insecure\.?\s*/gi, '')
+                    .trim();
+                reasonMap[d.table] = clean;
+            });
+
+            // --- Recovered-tables banner ---
+            const banner = document.getElementById('nowPassedBanner');
+            const passedList = document.getElementById('nowPassedList');
+            const passedCnt = document.getElementById('nowPassedCount');
+            if (passed.length > 0) {
+                passedCnt.textContent = passed.length;
+                passedList.textContent = passed.join(', ');
+                banner.style.display = 'block';
+            } else {
+                banner.style.display = 'none';
+            }
+
+            // --- Failed-tables list ---
+            failedTablesList.innerHTML = '';
+            if (tables.length === 0) {
+                const li = document.createElement('li');
+                li.innerHTML = '<span class="tbl-name">(Loading… please wait a moment)</span>';
+                li.style.color = 'var(--text-muted)';
+                failedTablesList.appendChild(li);
+            } else {
+                tables.forEach(table => {
+                    const li = document.createElement('li');
+                    const reason = reasonMap[table] || '';
+                    let html = `<span class="tbl-name">${table}</span>`;
+                    if (reason) {
+                        html += `<span class="tbl-reason">${reason}</span>`;
+                    }
+                    li.innerHTML = html;
+                    failedTablesList.appendChild(li);
+                });
+            }
+
+            retryModal.classList.add('active');
+        }
+
+
+
+        function hideRetryModal() {
+            retryModal.classList.remove('active');
+            currentJobId = null;
+        }
+
+        async function handleRetry(mode) {
+            if (!currentJobId) return;
+
+            // UI Update
+            retryModal.classList.remove('active');
+            loading.classList.add('active');
+
+            let loadMsg = 'Processing...';
+            if (mode === 'failed') loadMsg = 'Retrying failed tables...';
+            else if (mode === 'full') loadMsg = 'Restarting full export...';
+            else if (mode === 'ignore') loadMsg = 'Proceeding with valid tables...';
+
+            loadingText.textContent = loadMsg;
+
+            try {
+                // HIDE OLD SPINNER immediately since we might switch to dashboard
+                // Actually, wait for fetch to confirm job start
+
+                const response = await fetch('/retry-export', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_id: currentJobId,
+                        retry_mode: mode
+                    })
+                });
+
+                let data;
+                try {
+                    data = await response.json();
+                } catch (jsonError) {
+                    throw new Error("Invalid server response (not JSON)");
+                }
+
+                if (data.error || data.detail) {
+                    showToast(data.error || data.detail, 'error');
+                    return;
+                }
+
+                // If success, we get a NEW job_id (or old one reused)
+                if (data.job_id) {
+                    currentJobId = data.job_id; // Switch to new async job
+
+                    // Show Progress Dashboard
+                    document.getElementById('exportProgressDashboard').classList.remove('hidden');
+                    document.getElementById('downloadReadySection').classList.add('hidden');
+                    document.getElementById('activeControls').classList.remove('hidden');
+
+                    // Reset UI State for Retry
+                    document.getElementById('exportProgressBar').style.width = '0%';
+                    document.getElementById('exportPercentage').innerText = '0';
+                    updateStatusBadge(mode === 'failed' ? 'Retrying' : 'Processing', 'status-running');
+
+                    // Start Polling (this will verify status, update progress, etc.)
+                    isPaused = false;
+                    document.getElementById('btnPauseResume').innerHTML = '<i class="ri-pause-circle-line"></i> Pause';
+                    startPolling(currentJobId);
+                } else {
+                    showToast("Unknown server response", "error");
+                }
+
+            } catch (e) {
+                showToast(`Retry request failed: ${e.message}`, 'error');
+            } finally {
+                loading.classList.remove('active'); // ALWAYS hide spinner
+            }
+        }
+
+        retryFailedBtn.addEventListener('click', () => handleRetry('failed'));
+        retryFullBtn.addEventListener('click', () => handleRetry('full'));
+        retryIgnoreBtn.addEventListener('click', () => handleRetry('ignore'));
+        retryCancelBtn.addEventListener('click', hideRetryModal);
+
+        // Back button
+        backBtn.addEventListener('click', function () {
+            exportForm.classList.add('hidden');
+            connectionForm.classList.remove('hidden');
+            hideMessages();
+        });
+    </script>
+</body>
+
+</html>

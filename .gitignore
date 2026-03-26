@@ -1,0 +1,39 @@
+# === Secrets (NEVER commit) ===
+.env
+
+# === Python ===
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+
+# === DB / Dumps ===
+db.sqlite3
+dumps/
+
+# === Logs ===
+*.log
+logs/
+# Keep the logs directory itself
+!logs/.gitkeep
+
+# === Temp / Debug files ===
+debug_trace.txt
+last_error.txt
+check_result.txt
+verify_output.txt
+
+# === Import error logs ===
+import_err_*.log
+
+# === IDE / OS ===
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# === Build ===
+dist/
+build/
+*.egg-info/

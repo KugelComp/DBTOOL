@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>{% block title %}Site administration{% endblock %} | Django site admin</title>
+    <link rel="stylesheet" type="text/css" href="/static/admin/css/base.css">
+    {% block extrastyle %}{% endblock %}
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body class="{% block bodyclass %}{% endblock %}" data-admin-utc-offset="0">
+
+    <!-- Header -->
+    <div id="header">
+        <div id="branding">
+            <h1 id="site-name"><a href="/admin/">Django administration</a></h1>
+        </div>
+        <div id="user-tools">
+            WELCOME, <strong>{{ request.session.username|default:"ADMIN"|upper }}</strong>.
+            <a href="/">VIEW SITE</a> /
+            <a href="/admin/password_change/">CHANGE PASSWORD</a> /
+            <a href="/logout">LOG OUT</a>
+        </div>
+    </div>
+    <!-- END Header -->
+
+    {% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="/admin/">Home</a>
+        {% if title %} &rsaquo; {{ title }}{% endif %}
+    </div>
+    {% endblock %}
+
+
+    <!-- Container -->
+    <div id="content" class="{% block coltype %}colM{% endblock %}">
+        {% block pretitle %}{% endblock %}
+
+        {% block content_title %}
+        {% if title %}<h1>{{ title }}</h1>{% endif %}
+        {% endblock %}
+
+        {% block content %}
+        {% endblock %}
+
+        <br class="clear">
+    </div>
+    <!-- END Container -->
+
+</body>
+
+</html>

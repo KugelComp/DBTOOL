@@ -1,0 +1,25 @@
+# DB Tool - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core Web Framework
+fastapi==0.104.1
+uvicorn==0.24.0
+starlette==0.27.0
+
+# Django (ORM, Admin, Auth)
+Django==5.2.10
+asgiref==3.11.0
+
+# Database
+mysql-connector-python==9.5.0
+PyMySQL==1.1.2
+
+# Environment / Secrets
+python-dotenv==1.0.0
+
+# CSRF Protection
+starlette-csrf>=3.0.0
+
+# Request Validation
+pydantic>=2.0.0
+

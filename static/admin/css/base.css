@@ -1,0 +1,325 @@
+/* Django Admin Base CSS Port */
+:root {
+  --primary: #79aec8;
+  --secondary: #417690;
+  --accent: #f5dd5d;
+  --primary-fg: #fff;
+  --body-fg: #333;
+  --body-bg: #fff;
+  --body-quiet-color: #666;
+  --body-loud-color: #000;
+  --header-color: #ffc;
+  --header-bg: #417690;
+  --header-link-color: #f5dd5d;
+  --breadcrumbs-bg: #79aec8;
+  --breadcrumbs-fg: #c4dce8;
+  --breadcrumbs-link-fg: #fff;
+  --link-fg: #447e9b;
+  --link-hover-color: #036;
+  --link-selected-fg: #5b80b2;
+  --hairline-color: #e8e8e8;
+  --border-color: #ccc;
+  --error-fg: #ba2121;
+  --message-success-bg: #dfd;
+  --message-warning-bg: #ffc;
+  --message-error-bg: #ffefef;
+  --darkened-bg: #f8f8f8; 
+  --selected-bg: #e4e4e4;
+  --selected-row: #ffc;
+  --button-fg: #fff;
+  --button-bg: #417690;
+  --button-hover-bg: #205067;
+  --default-button-bg: #f0f0f0;
+  --default-button-hover-bg: #e0e0e0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  font-family: "Roboto", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
+  color: var(--body-fg);
+  background: var(--body-bg);
+}
+
+/* Header */
+#header {
+  width: 100%;
+  height: 40px;
+  background: var(--header-bg);
+  color: var(--header-color);
+  line-height: 40px;
+  overflow: hidden;
+}
+
+#header a {
+  color: var(--header-link-color);
+  text-decoration: none;
+}
+
+#branding {
+  float: left;
+}
+
+#branding h1 {
+  margin: 0;
+  padding: 0 10px;
+  font-size: 24px;
+  line-height: 40px;
+  font-weight: 300;
+  color: #f5dd5d;
+}
+
+#user-tools {
+  float: right;
+  padding: 0 20px;
+  font-size: 11px;
+  text-align: right;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+#user-tools a {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+#user-tools a:hover {
+  border-bottom-color: #79aec8;
+}
+
+/* Breadcrumbs */
+div.breadcrumbs {
+  background: var(--breadcrumbs-bg);
+  padding: 10px 40px;
+  border-bottom: 1px solid #305c74;
+  font-size: 11px;
+  color: var(--breadcrumbs-fg);
+  text-align: left;
+}
+
+div.breadcrumbs a {
+  color: var(--breadcrumbs-link-fg);
+  text-decoration: none;
+}
+
+/* Container */
+#content {
+  padding: 20px 40px;
+  position: relative;
+}
+
+#content h1 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  color: #666;
+  font-weight: 300;
+}
+
+/* Dashboard Module */
+.dashboard #content {
+  width: 600px;
+}
+
+.module {
+  border: none;
+  margin-bottom: 30px;
+  background: #fff;
+}
+
+.module caption {
+  background: var(--secondary);
+  color: #fff;
+  font-size: 13px;
+  text-align: left;
+  font-weight: bold;
+  padding: 8px 10px;
+  caption-side: top;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.module table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--border-color);
+}
+
+.module th, .module td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--hairline-color);
+  font-size: 13px;
+}
+
+.module th {
+  width: 100%;
+}
+
+.module a {
+  color: var(--body-fg);
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.module a.addlink, .module a.changelink {
+  color: var(--body-quiet-color);
+  font-weight: normal;
+  font-size: 11px;
+  text-transform: uppercase;
+  margin-left: 5px;
+  padding-left: 10px;
+}
+.module a.addlink::before { content: "+"; margin-right: 3px; font-weight: bold;}
+.module a.changelink::before { content: "✎"; margin-right: 3px;}
+
+/* Sidebar - Recent Actions */
+#content-related {
+  float: right;
+  width: 260px;
+  position: relative;
+  margin-right: -300px;
+}
+
+/* Lists (Change List) */
+#changelist {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+#changelist table {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-collapse: collapse;
+}
+
+#changelist thead th {
+  padding: 8px 10px;
+  line-height: normal;
+  text-transform: uppercase;
+  background: #f8f8f8;
+  font-size: 11px;
+  color: #666;
+  border-bottom: 1px solid var(--border-color);
+  text-align: left;
+}
+
+#changelist tbody td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--hairline-color);
+  font-size: 13px;
+}
+
+#changelist tbody tr:nth-child(even) {
+  background: #f8f8f8;
+}
+
+/* Object Tools (Add Button) */
+ul.object-tools {
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+  float: right;
+  position: relative;
+  top: -46px; /* HACK to align with H1 */
+}
+
+ul.object-tools li {
+  display: block;
+  float: left;
+  margin-left: 10px;
+}
+
+ul.object-tools a {
+  display: block;
+  float: left;
+  padding: 5px 15px;
+  background: var(--body-quiet-color);
+  color: #fff;
+  font-weight: bold;
+  font-size: 11px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 15px;
+  transition: background 0.15s;
+}
+
+ul.object-tools a:hover {
+  background: var(--link-hover-color);
+}
+
+ul.object-tools a.addlink {
+  background: var(--button-bg);
+}
+
+ul.object-tools a.addlink::before {
+    content: "+ ";
+}
+
+/* Forms */
+.form-row {
+  overflow: hidden;
+  padding: 10px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--hairline-color);
+}
+
+.form-row label {
+    display: block;
+    padding: 4px 10px 0 0;
+    float: left;
+    width: 160px;
+    word-wrap: break-word;
+    line-height: 1;
+    font-weight: bold;
+    color: #666;
+}
+
+.form-row input[type=text], .form-row input[type=password], .form-row input[type=email] {
+    width: 300px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.submit-row {
+    padding: 12px 14px;
+    margin: 0 0 20px;
+    background: #f8f8f8;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    text-align: right;
+    overflow: hidden;
+}
+
+.submit-row input[type=submit] {
+    background: var(--button-bg);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 11px;
+}
+
+.submit-row input[type=submit]:hover {
+    background: var(--button-hover-bg);
+}
+
+.submit-row p.deletelink-box {
+    float: left;
+    margin: 0;
+}
+
+.submit-row a.deletelink {
+    display: block;
+    background: #ba2121;
+    border-radius: 4px;
+    padding: 10px 15px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 11px;
+    text-transform: uppercase;
+}

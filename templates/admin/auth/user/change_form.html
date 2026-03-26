@@ -1,0 +1,59 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{% if is_add %}Add user{% else %}Change user{% endif %} | Django site admin{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="/admin/">Home</a>
+    &rsaquo; <a href="/admin/auth/">Authentication and Authorization</a>
+    &rsaquo; <a href="/admin/auth/user/">Users</a>
+    &rsaquo; {% if is_add %}Add user{% else %}{{ username }}{% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+
+    <form method="post" id="user_form" novalidate>
+        <div>
+
+            <fieldset class="module aligned ">
+
+                <div class="form-row field-username">
+                    <div>
+                        <label class="required" for="id_username">Username:</label>
+                        {% if is_add %}
+                        <input type="text" name="username" class="vTextField" maxlength="150" required id="id_username">
+                        <div class="help">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</div>
+                        {% else %}
+                        <div class="readonly">{{ username }}</div>
+                        <input type="hidden" name="username" value="{{ username }}">
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row field-password">
+                    <div>
+                        <label class="required" for="id_password">Password:</label>
+                        <input type="password" name="password" class="vTextField" maxlength="128" required
+                            id="id_password">
+                        <div class="help">{% if not is_add %}Leave blank to keep unchanged.{% endif %}</div>
+                    </div>
+                </div>
+
+            </fieldset>
+
+            <div class="submit-row">
+                {% if not is_add and username != 'admin' %}
+                <p class="deletelink-box"><a href="/admin/auth/user/{{ username }}/delete/"
+                        class="deletelink">Delete</a></p>
+                {% endif %}
+
+                <input type="submit" value="Save" class="default" name="_save">
+            </div>
+
+        </div>
+    </form>
+
+</div>
+{% endblock %}
