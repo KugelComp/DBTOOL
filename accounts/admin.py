@@ -40,7 +40,8 @@ def is_superuser_only(user):
 
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
-    list_display = ("id", "name")
+    list_display = ("name", "id")
+    list_display_links = ("name",)
     search_fields = ("name",)
     
     def has_module_permission(self, request):
