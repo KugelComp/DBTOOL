@@ -14,6 +14,8 @@ asgiref==3.11.0
 # Database
 mysql-connector-python==9.5.0
 PyMySQL==1.1.2
+psycopg2-binary>=2.9.0
+dj-database-url>=2.0.0
 
 # Environment / Secrets
 python-dotenv==1.0.0
