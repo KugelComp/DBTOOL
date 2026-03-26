@@ -35,7 +35,10 @@ def is_superuser_only(user):
             return user.hierarchy.is_superuser()
         return False
     except:
-        return False@admin.register(Group)
+        return False
+
+
+@admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
     list_display = ("id", "name")
     search_fields = ("name",)
