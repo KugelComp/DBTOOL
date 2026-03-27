@@ -1056,25 +1056,42 @@
         // Auto-fill user and password when a host is selected
         hostSelect.addEventListener('change', (e) => {
             const selectedHostKey = e.target.value;
+            const credGroup = document.getElementById('credentialsGroup');
+            const pwdInput = document.getElementById('password');
+            const pwdLabel = credGroup.querySelector('label');
+
             if (selectedHostKey && hostsData[selectedHostKey]) {
                 const host = hostsData[selectedHostKey];
                 document.getElementById('user').value = host.user || '';
-                document.getElementById('password').value = host.password || '';
+                pwdInput.value = host.password || '';
 
-                // If the host has no stored username (e.g., production host),
-                // show the credentials group so the user knows to type it manually
-                const credGroup = document.getElementById('credentialsGroup');
                 if (!host.user) {
+                    // No saved username — show full credentials group
                     credGroup.classList.remove('hidden');
                     document.getElementById('user').placeholder = 'Enter username (required for this host)';
+                    if (pwdLabel) pwdLabel.textContent = 'Password';
+                    pwdInput.placeholder = '••••••••';
+                } else if (!host.password) {
+                    // Username saved but NO password (production/unconfigured host) — show password field
+                    credGroup.classList.remove('hidden');
+                    document.getElementById('user').placeholder = '';
+                    if (pwdLabel) pwdLabel.textContent = 'Password (required — not stored for this host)';
+                    pwdInput.placeholder = 'Enter password to connect...';
+                    pwdInput.style.borderColor = 'rgba(239,68,68,0.5)';
                 } else {
+                    // Both username and password saved — hide credentials group
                     credGroup.classList.add('hidden');
                     document.getElementById('user').placeholder = '';
+                    if (pwdLabel) pwdLabel.textContent = 'Password';
+                    pwdInput.placeholder = '••••••••';
+                    pwdInput.style.borderColor = '';
                 }
             } else {
                 document.getElementById('user').value = '';
-                document.getElementById('password').value = '';
-                document.getElementById('credentialsGroup').classList.add('hidden');
+                pwdInput.value = '';
+                pwdInput.style.borderColor = '';
+                if (pwdLabel) pwdLabel.textContent = 'Password';
+                credGroup.classList.add('hidden');
             }
         });
 
