@@ -49,7 +49,7 @@ def perform_dump(host, user, password, database, dump_path, target_database_name
             list_cmd = [
                 "mysql",
                 "--protocol=TCP",
-                "--ssl-mode=DISABLED",
+                "--skip-ssl",
                 "-h", host,
                 "-P", str(port),
                 "-u", user
@@ -113,7 +113,7 @@ def perform_dump(host, user, password, database, dump_path, target_database_name
         cmd = [
             "mysqldump",
             "--protocol=TCP",
-            "--ssl-mode=DISABLED",
+            "--skip-ssl",
             "-h", host,
             "-P", str(port),
             "-u", user
@@ -162,7 +162,7 @@ def perform_dump(host, user, password, database, dump_path, target_database_name
         cmd = [
             "mysqldump",
             "--protocol=TCP",
-            "--ssl-mode=DISABLED",
+            "--skip-ssl",
             "-h", host,
             "-P", str(port),
             "-u", user
@@ -244,7 +244,7 @@ def perform_dump(host, user, password, database, dump_path, target_database_name
         table_dump_cmd = [
             "mysqldump",
             "--protocol=TCP",
-            "--ssl-mode=DISABLED",
+            "--skip-ssl",
             "-h", host,
             "-P", str(port),
             "-u", user
