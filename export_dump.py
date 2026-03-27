@@ -67,7 +67,9 @@ def perform_dump(host, user, password, database, dump_path, target_database_name
             if result.returncode != 0:
                 log_debug(f"SHOW TABLES failed: {result.stderr}")
                 msg = f"Failed to list tables: {result.stderr}"
-                print(f"[ERROR] {msg}")
+                print(f"[EXPORT DEBUG] mysql SHOW TABLES failed. CMD: {' '.join(list_cmd)}")
+                print(f"[EXPORT DEBUG] STDERR: {result.stderr}")
+                print(f"[EXPORT DEBUG] STDOUT: {result.stdout}")
                 if logger: logger.error(msg, action="EXPORT_ERROR")
                 return False, msg, []
             

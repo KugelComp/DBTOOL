@@ -1613,7 +1613,12 @@
                 } else if (status === 'Failed' || status === 'Cancelled') {
                     clearInterval(pollInterval);
                     updateStatusBadge(status, 'status-cancelled');
-                    showToast(`Process ${status}: ${data.error || ''}`, 'error');
+                    const errorDetail = data.error ? `\n\nError: ${data.error}` : '';
+                    showToast(`Process ${status}${errorDetail}`, 'error');
+                    // Also show error persistently on the panel
+                    const errMsg = data.error || 'Unknown error. Check server logs.';
+                    document.getElementById('exportProgressText').innerText = `❌ ${errMsg}`;
+                    document.getElementById('exportProgressText').style.color = '#f87171';
                     document.getElementById('activeControls').classList.add('hidden');
                     document.getElementById('downloadReadySection').classList.remove('hidden');
                     document.getElementById('btnFinalDownload').classList.add('hidden');
